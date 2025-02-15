@@ -15,7 +15,7 @@ async def send_random_favorite(message: Message):
         await message.answer("😔 У вас пока нет избранных фильмов.")
         return
 
-    movie = random.choice(movies)  # Выбираем случайный фильм
+    movie = random.choice(movies) 
     title, year, country, poster, genres, ratings = movie
 
     text = (

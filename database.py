@@ -16,17 +16,18 @@ CREATE TABLE IF NOT EXISTS favorites (
     movie_ratings TEXT
 )
 """)
+
+
 conn.commit()
 
 def add_favorite(user_id, movie_id, movie_title, movie_year, movie_country, movie_poster, movie_genres, movie_ratings):
-    """Добавить фильм в избранное"""
     cursor.execute("""
         INSERT INTO favorites (user_id, movie_id, movie_title, movie_year, movie_country, movie_poster, movie_genres, movie_ratings) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """, (user_id, movie_id, movie_title, movie_year, movie_country, movie_poster, movie_genres, movie_ratings))
     conn.commit()
 
+
 def get_favorites(user_id):
-    """Получить список избранных фильмов"""
     cursor.execute("SELECT movie_id, movie_title, movie_year, movie_country, movie_poster, movie_genres, movie_ratings FROM favorites WHERE user_id = ?", (user_id,))
     return cursor.fetchall()

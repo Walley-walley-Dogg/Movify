@@ -10,8 +10,8 @@ def get_random_movie():
  
     try:
         response = requests.get(API_URL, headers=headers)
-        response.raise_for_status()  # Проверяем, нет ли ошибки HTTP (например, 401, 403, 500 и т. д.)
-        data = response.json()  # Преобразуем JSON в словарь
+        response.raise_for_status()  
+        data = response.json()  
     except requests.exceptions.RequestException as e:
         print(f"Ошибка при запросе к API: {e}")
         return None
@@ -22,7 +22,7 @@ def get_random_movie():
     if not data:
         return None
 
-    # Формируем строку рейтингов: выводим все ключи, значения которых не равны 0
+    
     raw_ratings = data.get("rating", {})
     filtered_ratings = {k: v for k, v in raw_ratings.items() if v != 0}
     ratings_str = ", ".join(f"{k.upper()}: {v}" for k, v in filtered_ratings.items()) if filtered_ratings else "Нет данных"
