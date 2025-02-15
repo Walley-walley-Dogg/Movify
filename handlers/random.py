@@ -1,6 +1,5 @@
 from aiogram import Router
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.filters import Command
 from api import get_random_movie
 
 router = Router()
@@ -13,7 +12,10 @@ async def send_random_movie(message: Message):
         text = (
             f"🎬 *Название:* {movie['title']}\n"
             f"📅 *Год:* {movie['year']}\n"
-            f"🌍 *Страна:* {movie['countries']}"
+            f"🌍 *Страна:* {movie['countries']}\n"
+            f"🎭 *Жанры:* {movie['genres']}\n"
+            f"⭐ *Рейтинги:* {movie['ratings']}\n"
+            f"🔞 *Возрастное ограничение:* {movie['ageRating']}"
         )
         if movie.get("poster"):
             await message.answer_photo(photo=movie["poster"], caption=text, parse_mode="Markdown")
