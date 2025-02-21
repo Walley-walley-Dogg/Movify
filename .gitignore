@@ -1,0 +1,5 @@
+config.py
+
+movies.db
+
+*__pycache__/
