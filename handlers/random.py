@@ -1,33 +1,26 @@
 from aiogram import Router
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-from api import get_random_movie
+from aiogram.types import Message
+from database import get_random_favorite
 
 router = Router()
 
-@router.message(lambda msg: msg.text == "🎲 Случайный фильм")
-async def send_random_movie(message: Message):
-    movie = get_random_movie()
-    
+@router.message(lambda msg: msg.text == "🎲 Случайное из избранного")
+async def send_random_favorite(message: Message):
+    user_id = message.from_user.id
+    movie = get_random_favorite(user_id)
+
     if movie:
+        movie_id, title, year, country, poster, genres, ratings = movie
         text = (
-            f"🎬 *Название:* {movie['title']}\n"
-            f"📅 *Год:* {movie['year']}\n"
-            f"🌍 *Страна:* {movie['countries']}\n"
-            f"🎭 *Жанры:* {movie['genres']}\n"
-            f"⭐ *Рейтинги:* {movie['ratings']}\n"
-            f"🔞 *Возрастное ограничение:* {movie['ageRating']}"
+            f"🎬 *Название:* {title}\n"
+            f"📅 *Год:* {year}\n"
+            f"🌍 *Страна:* {country}\n"
+            f"🎭 *Жанры:* {genres}\n"
+            f"⭐ *Рейтинги:* {ratings}"
         )
-        if movie.get("poster"):
-            await message.answer_photo(photo=movie["poster"], caption=text, parse_mode="Markdown")
+        if poster:
+            await message.answer_photo(photo=poster, caption=text, parse_mode="Markdown")
         else:
             await message.answer(text, parse_mode="Markdown")
-        
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(
-                text="⭐ Добавить в избранное",
-                callback_data=f"fav_{movie['title']}"
-            )]
-        ])
-        await message.answer("Хотите добавить этот фильм в избранное?", reply_markup=keyboard)
     else:
-        await message.answer("❌ Не удалось получить фильм. Попробуй ещё раз!")
+        await message.answer("❌ У вас пока нет избранных фильмов!")
