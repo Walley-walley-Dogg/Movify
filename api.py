@@ -4,35 +4,35 @@ from config import KINIPOISK_API_KEY
 API_URL = "https://api.kinopoisk.dev/v1.4/movie/random"
 
 def get_random_movie():
-    headers = {"accept": "application/json", "X-API-KEY": KINIPOISK_API_KEY}
-    response = requests.get(API_URL, headers=headers)
+    """Получает случайный фильм с API Кинопоиска."""
+    headers = {"X-API-KEY": KINIPOISK_API_KEY}
     
- 
     try:
-        response = requests.get(API_URL, headers=headers)
+        response = requests.get(API_URL, headers=headers, timeout=5)
         response.raise_for_status()  
-        data = response.json()  
+        data = response.json()
+
+        if not data or "docs" not in data or not data["docs"]:
+            raise ValueError("API вернуло пустой ответ или данные отсутствуют.")
+        
+        movie = data["docs"][0]
+        return {
+            "id": movie.get("id", "N/A"),
+            "title": movie.get("alternativeName", "Без названия"),
+            "year": movie.get("year", "Неизвестно"),
+            "countries": ", ".join([c["name"] for c in movie.get("countries", [])]),
+            "genres": ", ".join([g["name"] for g in movie.get("genres", [])]),
+            "rating": {k: v for k, v in movie.get("rating", {}).items() if v and v > 0},
+            "ageRating": movie.get("ageRating", "Не указано"),
+            "poster": movie["poster"]["url"] if movie.get("poster") else None
+        }
+
+    except requests.exceptions.Timeout:
+        print("Ошибка: Превышено время ожидания ответа от API")
+        return None
     except requests.exceptions.RequestException as e:
-        print(f"Ошибка при запросе к API: {e}")
+        print(f"Ошибка сети: {e}")
         return None
-    except ValueError:
-        print("Ошибка: получен некорректный JSON")
+    except ValueError as e:
+        print(f"Ошибка данных API: {e}")
         return None
-
-    if not data:
-        return None
-
-    
-    raw_ratings = data.get("rating", {})
-    filtered_ratings = {k: v for k, v in raw_ratings.items() if v != 0}
-    ratings_str = ", ".join(f"{k.upper()}: {v}" for k, v in filtered_ratings.items()) if filtered_ratings else "Нет данных"
-
-    return {
-        "title": data.get("alternativeName", "Без названия"),
-        "year": data.get("year", "Неизвестно"),
-        "countries": ", ".join([country["name"] for country in data.get("countries", [])]) or "Не указана",
-        "poster": data.get("poster", {}).get("url"),
-        "genres": ", ".join([genre["name"] for genre in data.get("genres", [])]) or "Не указан",
-        "ratings": ratings_str,
-        "ageRating": data.get("ageRating", "Не указан")
-    }
